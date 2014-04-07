@@ -88,10 +88,15 @@ public class SkyRouterCli implements Runnable {
 				"sky router password");
 		passwordOption.setArgName("password");
 
+		Option addressOption = new Option("i", "ip", true,
+				"sky router hostname or IP");
+		passwordOption.setArgName("address");
+		
 		options.addOption(help);
 		options.addOption(reboot);
 		options.addOption(usernameOption);
 		options.addOption(passwordOption);
+		options.addOption(addressOption);
 
 		command = processArgs(args);
 
@@ -99,8 +104,10 @@ public class SkyRouterCli implements Runnable {
 				SkyRouterConstants.DEFAULT_USERNAME);
 		String password = command.getOptionValue('p',
 				SkyRouterConstants.DEFAULT_PASSWORD);
-
-		view = factory.createView(username, password);
+		String routerHost = command.getOptionValue('i',
+				SkyRouterConstants.DEFAULT_HOST);
+		
+		view = factory.createView(username, password, routerHost);
 	}
 
 	/**
@@ -128,9 +135,7 @@ public class SkyRouterCli implements Runnable {
 	}
 
 	public void printHelp() {
-		HelpFormatter formatter;
-		formatter = new HelpFormatter();
-		formatter.printHelp("sky-router", options);
+		new HelpFormatter().printHelp("sky-router", options);
 	}
 
 }
