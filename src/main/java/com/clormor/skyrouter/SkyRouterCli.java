@@ -29,6 +29,10 @@ public class SkyRouterCli implements Runnable {
 			if (command.hasOption("reboot")) {
 				System.out.println(view.reboot());
 			}
+			
+			if (command.hasOption('b')) {
+				System.out.println(view.getCurrentBandwidth());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -78,6 +82,7 @@ public class SkyRouterCli implements Runnable {
 		options = new Options();
 
 		Option reboot = new Option("r", "reboot", false, "reboot your router");
+		Option bandwidthOption = new Option("b", "bandwidth", false, "display bandwidth metrics");
 		Option help = new Option("h", "help", false, "print this help message");
 
 		Option usernameOption = new Option("u", "username", true,
@@ -94,6 +99,7 @@ public class SkyRouterCli implements Runnable {
 		
 		options.addOption(help);
 		options.addOption(reboot);
+		options.addOption(bandwidthOption);
 		options.addOption(usernameOption);
 		options.addOption(passwordOption);
 		options.addOption(addressOption);

@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import org.apache.commons.logging.LogFactory;
 
 import com.clormor.skyrouter.model.SkyRouterConstants;
+import com.clormor.skyrouter.model.SkyRouterReport;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.ConfirmHandler;
 import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
@@ -69,8 +70,6 @@ public class SkyRouterController {
 	 */
 	@SuppressWarnings("unchecked")
 	public void rebootRouter() throws Exception {
-		System.out.println(getBandwidthStatistics());
-		
 		HtmlPage currentPage = client.getPage("http://" + routerHost
 				+ SkyRouterConstants.DIAGNOSTICS_URL);
 
@@ -103,23 +102,33 @@ public class SkyRouterController {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Returns the current bandwidth established between the router and the
+	 * exchange.
+	 * </p>
+	 * 
+	 * @return a Sting reporting the current bandwidth metrics
+	 * @throws Exception
+	 *             if something bad happens
+	 */
 	@SuppressWarnings("unchecked")
-	public String getBandwidthStatistics() throws Exception {
-		StringBuilder result = new StringBuilder();
+	public SkyRouterReport getBandwidthStatistics() throws Exception {
 		HtmlPage currentPage = client.getPage("http://" + routerHost
 				+ SkyRouterConstants.STATISTICS_URL);
 
 		DomElement downStream = Iterables
 				.getOnlyElement((List<DomElement>) currentPage
 						.getByXPath("/html/body/div/div/div/form/div/table[2]/tbody/tr[3]/td[2]"));
-		result.append("down: ").append(downStream.getTextContent());
+		int down = Integer.parseInt(downStream.getTextContent());
 
 		DomElement upStream = Iterables
 				.getOnlyElement((List<DomElement>) currentPage
 						.getByXPath("/html/body/div/div/div/form/div/table[2]/tbody/tr[4]/td[2]"));
-		result.append("\tup: ").append(upStream.getTextContent());
+		
+		int up = Integer.parseInt(upStream.getTextContent());
 
-		return result.toString();
+		return new SkyRouterReport(down, up);
 	}
 
 }

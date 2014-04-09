@@ -1,7 +1,11 @@
 package com.clormor.skyrouter.view;
 
+import org.joda.time.DateTime;
+
 import com.clormor.skyrouter.controller.SkyRouterController;
 import com.clormor.skyrouter.controller.SkyRouterControllerFactory;
+import com.clormor.skyrouter.model.SkyRouterConstants;
+import com.clormor.skyrouter.model.SkyRouterReport;
 
 
 public class SkyRouterView {
@@ -22,6 +26,19 @@ public class SkyRouterView {
 			return "Router restarted.";
 		} catch (Exception e) {
 			return "Failed to reboot router...\n" +  e.getMessage();
+		}
+	}
+
+	public String getCurrentBandwidth() {
+		try {
+			SkyRouterReport bandwidthStatistics = controller.getBandwidthStatistics();
+			StringBuilder result = new StringBuilder();
+			result.append("[").append(SkyRouterConstants.DATE_FORMATTER.print(DateTime.now()));
+			result.append("]\tdown: ").append(bandwidthStatistics.getDown());
+			result.append("\tup: ").append(bandwidthStatistics.getUp());
+			return result.toString();
+		} catch (Exception e) {
+			return "Failed to get statistics...\n" +  e.getMessage();
 		}
 	}
 

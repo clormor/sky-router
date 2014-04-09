@@ -13,7 +13,7 @@ mainClassName = "com.clormor.skyrouter.SkyRouterCli"
 dependencies {
 	compile 'net.sourceforge.htmlunit:htmlunit:2.14'
 	compile 'commons-cli:commons-cli:1.2'
-//	compile 'joda-time:joda-time:2.3'
+	compile 'joda-time:joda-time:2.3'
 	compile 'com.google.guava:guava:16.0.1'
 	testCompile 'junit:junit:4.11'
 	testCompile 'org.mockito:mockito-all:1.9.5'
