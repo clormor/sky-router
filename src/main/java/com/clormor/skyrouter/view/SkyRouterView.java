@@ -33,9 +33,9 @@ public class SkyRouterView {
 		try {
 			SkyRouterReport bandwidthStatistics = controller.getBandwidthStatistics();
 			StringBuilder result = new StringBuilder();
-			result.append("[").append(SkyRouterConstants.DATE_FORMATTER.print(DateTime.now()));
-			result.append("]\tdown: ").append(bandwidthStatistics.getDown());
-			result.append("\tup: ").append(bandwidthStatistics.getUp());
+			result.append(SkyRouterConstants.DATE_FORMATTER.print(DateTime.now()));
+			result.append(",\t").append(bandwidthStatistics.getDown());
+			result.append(",\t").append(bandwidthStatistics.getUp());
 			return result.toString();
 		} catch (Exception e) {
 			return "Failed to get statistics...\n" +  e.getMessage();
