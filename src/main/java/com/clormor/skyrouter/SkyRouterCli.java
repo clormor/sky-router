@@ -27,7 +27,7 @@ public class SkyRouterCli implements Runnable {
 			}
 
 			if (command.hasOption("reboot")) {
-				view.reboot();
+				System.out.println(view.reboot());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -33,17 +33,17 @@ public class SkyRouterViewTest {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		when(mockFactory.makeController()).thenReturn(mockController);
+		when(mockFactory.makeController(testUser, testPassword, testHost)).thenReturn(mockController);
 		testView = new SkyRouterView(testUser, testPassword, testHost, mockFactory);
 	}
 	
 	@Test
 	public void test_reboot_no_exception() throws Exception {
-		doNothing().when(mockController).rebootRouter(testUser, testPassword, testHost);
+		doNothing().when(mockController).rebootRouter();
 		String result = testView.reboot();
 		
 		// verify reboot called, and exception printed
-		verify(mockController, times(1)).rebootRouter(testUser, testPassword, testHost);
+		verify(mockController, times(1)).rebootRouter();
 		assertEquals(result, "Router restarted.");
 	}
 	
@@ -52,11 +52,11 @@ public class SkyRouterViewTest {
 		String exceptionMessage = "test failure message";
 		Exception testException = new Exception(exceptionMessage);
 		
-		doThrow(testException).when(mockController).rebootRouter(testUser, testPassword, testHost);
+		doThrow(testException).when(mockController).rebootRouter();
 		String result = testView.reboot();
 		
 		// verify reboot called, and exception printed
-		verify(mockController, times(1)).rebootRouter(testUser, testPassword, testHost);
+		verify(mockController, times(1)).rebootRouter();
 		assertTrue(result.contains(exceptionMessage));
 	}
 }

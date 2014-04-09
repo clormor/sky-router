@@ -1,16 +1,125 @@
 package com.clormor.skyrouter.controller;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+
+import org.apache.commons.logging.LogFactory;
+
+import com.clormor.skyrouter.model.SkyRouterConstants;
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.ConfirmHandler;
+import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebWindow;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.google.common.collect.Iterables;
+
 public class SkyRouterController {
 
+	private WebClient client;
+	private final String routerHost;
+
+	final LinkedList<WebWindow> windows = new LinkedList<WebWindow>();
+
+	public SkyRouterController(String username, String password,
+			String routerHost) {
+		this.routerHost = routerHost;
+		client = new WebClient(BrowserVersion.FIREFOX_24);
+
+		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
+				"org.apache.commons.logging.impl.NoOpLog");
+
+		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit")
+				.setLevel(Level.OFF);
+		java.util.logging.Logger.getLogger("org.apache.commons.httpclient")
+				.setLevel(Level.OFF);
+
+		DefaultCredentialsProvider auth = new DefaultCredentialsProvider();
+		auth.addCredentials(username, password);
+		client.setCredentialsProvider(auth);
+
+		client.setConfirmHandler(new ConfirmHandler() {
+			public boolean handleConfirm(final Page page, final String message) {
+				return true;
+			}
+		});
+
+		client.getOptions().setJavaScriptEnabled(true);
+		client.getOptions().setTimeout(10000);
+		client.getOptions().setRedirectEnabled(true);
+		client.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		client.getOptions().setThrowExceptionOnScriptError(false);
+		client.getOptions().setCssEnabled(false);
+		client.getOptions().setAppletEnabled(false);
+		client.getOptions().setActiveXNative(false);
+		client.getOptions().setUseInsecureSSL(true);
+	}
+
 	/**
-	 * <p>Connect to a sky router and reboot it.</p>
-	 * @param username connection user name
-	 * @param password connection password
-	 * @param routerHost router host/IP
-	 * @exception if anything goes wrong
+	 * <p>
+	 * Connect to a sky router and reboot it.
+	 * </p>
+	 * 
+	 * @exception Exception
+	 *                if anything goes wrong
 	 */
-	public void rebootRouter(String username, String password, String routerHost) throws Exception {
-		// TODO Auto-generated method stub
+	@SuppressWarnings("unchecked")
+	public void rebootRouter() throws Exception {
+		System.out.println(getBandwidthStatistics());
+		
+		HtmlPage currentPage = client.getPage("http://" + routerHost
+				+ SkyRouterConstants.DIAGNOSTICS_URL);
+
+		HtmlAnchor rebootButton = Iterables
+				.getOnlyElement((List<HtmlAnchor>) currentPage
+						.getByXPath("/html/body/div/div/div/div/form[4]/table/tbody/tr/td[5]/a"));
+
+		rebootButton.click();
+		waitForJavaScript();
+	}
+
+	/**
+	 * <p>
+	 * Pauses execution until JavaScript processes complete, or throws a
+	 * run-time exception if it times out.
+	 * </p>
+	 */
+	private void waitForJavaScript() {
+		int maxTries = 10;
+		int processesStillExecuting = 1;
+
+		while (processesStillExecuting > 0 & maxTries > 0) {
+			maxTries--;
+			processesStillExecuting = client.waitForBackgroundJavaScript(1000);
+		}
+
+		if (processesStillExecuting != 0) {
+			throw new RuntimeException(
+					"failed to execute java script, timing out!");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public String getBandwidthStatistics() throws Exception {
+		StringBuilder result = new StringBuilder();
+		HtmlPage currentPage = client.getPage("http://" + routerHost
+				+ SkyRouterConstants.STATISTICS_URL);
+
+		DomElement downStream = Iterables
+				.getOnlyElement((List<DomElement>) currentPage
+						.getByXPath("/html/body/div/div/div/form/div/table[2]/tbody/tr[3]/td[2]"));
+		result.append("down: ").append(downStream.getTextContent());
+
+		DomElement upStream = Iterables
+				.getOnlyElement((List<DomElement>) currentPage
+						.getByXPath("/html/body/div/div/div/form/div/table[2]/tbody/tr[4]/td[2]"));
+		result.append("\tup: ").append(upStream.getTextContent());
+
+		return result.toString();
 	}
 
 }
